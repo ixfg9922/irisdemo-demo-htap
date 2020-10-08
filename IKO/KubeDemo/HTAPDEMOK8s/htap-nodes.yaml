@@ -1,0 +1,187 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: htapui
+  labels:
+    app: htapui
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 10000
+    targetPort: 4200
+    protocol: TCP
+  selector:
+    app: htapui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: htapui
+  labels:
+    app: htapui
+spec:
+  selector:
+    matchLabels:
+      app: htapui
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: htapui
+    spec:
+      containers:
+      - name: htapui
+        image: intersystemsdc/irisdemo-demo-htap:ui-version-2.5.0
+        ports:
+        - containerPort: 4200
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: htapmaster
+  labels:
+    app: htapmaster
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http1
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http2
+  selector:
+    app: htapmaster
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: htapmaster
+spec:
+  selector:
+    matchLabels:
+      app: htapmaster
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: htapmaster
+    spec:
+      containers:
+      - name: htapmaster
+        image: intersystemsdc/irisdemo-demo-htap:master-version-2.5.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MASTER_SPEEDTEST_TITLE
+          value: "SpeedTest | IRIS 2019.4 (XEP)"
+        - name: START_CONSUMERS
+          value: "true"
+        - name: DISABLE_JOURNAL_FOR_DROP_TABLE
+          value: "true"
+        - name: DISABLE_JOURNAL_FOR_TappCATE
+          value: "true"
+        - name: INGESTION_THREADS_PER_WORKER
+          value: "2"
+        - name: INGESTION_BATCH_SIZE
+          value: "1000"
+        - name: INGESTION_JDBC_URL
+          value: "jdbc:IRIS://htapirisdb:51773/USER"
+        - name: INGESTION_JDBC_USERNAME
+          value: "SuperUser"
+        - name: INGESTION_JDBC_PASSWORD
+          value: "sys"
+        - name: CONSUMER_JDBC_URL
+          value: "jdbc:IRIS://htapirisdb:51773/USER"
+        - name: CONSUMER_JDBC_USERNAME
+          value: "SuperUser"
+        - name: CONSUMER_JDBC_PASSWORD
+          value: "sys"
+        - name: CONSUMER_THREADS_PER_WORKER
+          value: "1"
+        - name: CONSUMER_TIME_BETWEEN_QUERIES_IN_MILLIS
+          value: "0"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingest-worker1
+  labels:
+    app: ingest-worker1
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: ingest-worker1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingest-worker1
+spec:
+  selector:
+    matchLabels:
+      app: ingest-worker1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ingest-worker1
+    spec:
+      containers:
+      - name: ingest-worker1
+        image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-query-worker-version-2.5.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MASTER_HOSTNAME
+          value: "htapmaster"
+        - name: MASTER_PORT
+          value: "8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: query-worker1
+  labels:
+    app: query-worker1
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: query-worker1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: query-worker1
+spec:
+  selector:
+    matchLabels:
+      app: query-worker1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: query-worker1
+    spec:
+      containers:
+      - name: query-worker1
+        image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-query-worker-version-2.5.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MASTER_HOSTNAME
+          value: "htapmaster"
+        - name: MASTER_PORT
+          value: "8080"

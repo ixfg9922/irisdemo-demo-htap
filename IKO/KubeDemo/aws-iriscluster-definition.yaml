@@ -1,0 +1,29 @@
+apiVersion: intersystems.com/v1alpha1
+kind: IrisCluster
+metadata:
+  name: my-iriscluster
+spec:
+  passwordHash: '9fe5139e4e4ba481cdcafc18fbfd8862e0bfd2c1,qtplq6ev'
+  licenseKeySecret:
+    name: iris-key-secret
+  topology:
+    data:
+      shards: 1
+      mirrored: false
+      image: intersystemsicm/iris:latest
+      podTemplate:
+        spec:
+          imagePullSecrets:
+            - name: dockerhub-secret
+      updateStrategy:
+        type: RollingUpdate
+      storage:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100G
+        storageClassName: aws-storage-class
+  serviceTemplate:
+    spec:
+      type: LoadBalancer

@@ -1,0 +1,30 @@
+apiVersion: intersystems.com/v1alpha1
+kind: IrisCluster
+metadata:
+  name: htapirisdb
+spec:
+  passwordHash: '071e3aa0c8810f91eefd8f074e3768b06c66308a,v7mf8dt5'
+  licenseKeySecret:
+    name: iris-key-secret
+  topology:
+    data:
+      shards: 1
+      mirrored: false
+#      image: intersystemsdc/irisdemo-base-irisdb-community:version-1.4
+      image: intersystemsicm/iris:latest
+      podTemplate:
+        spec:
+          imagePullSecrets:
+            - name: dockerhub-secret
+      updateStrategy:
+        type: RollingUpdate
+      storage:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100G
+        storageClassName: iris-ssd-storageclass
+  serviceTemplate:
+    spec:
+      type: LoadBalancer
