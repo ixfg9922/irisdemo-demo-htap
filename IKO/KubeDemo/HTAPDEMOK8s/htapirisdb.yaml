@@ -1,3 +1,14 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: aws-storage-class
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: io1
+  iopsPerGB: "10"
+  fsType: ext4
+volumeBindingMode: WaitForFirstConsumer
+---
 apiVersion: intersystems.com/v1alpha1
 kind: IrisCluster
 metadata:
@@ -24,7 +35,10 @@ spec:
         resources:
           requests:
             storage: 100G
-        storageClassName: iris-ssd-storageclass
+        storageClassName: aws-storage-class
   serviceTemplate:
     spec:
       type: LoadBalancer
+
+
+
