@@ -22,7 +22,8 @@ spec:
       shards: 1
       mirrored: false
 #      image: intersystemsdc/irisdemo-base-irisdb-community:version-1.4
-      image: intersystemsicm/iris:latest
+#      image: intersystemsicm/iris:latest
+      image: mc7913/irisdemo:irisdemo.iko_test01
       podTemplate:
         spec:
           imagePullSecrets:
