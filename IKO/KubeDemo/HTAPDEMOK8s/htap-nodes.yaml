@@ -5,11 +5,11 @@ metadata:
   labels:
     app: htapui
 spec:
-  type: LoadBalancer
   ports:
   - port: 10000
     targetPort: 4200
     protocol: TCP
+    name: http
   selector:
     app: htapui
 ---
@@ -42,7 +42,6 @@ metadata:
   labels:
     app: htapmaster
 spec:
-  type: LoadBalancer
   ports:
     - port: 80
       targetPort: 8080
@@ -111,7 +110,6 @@ metadata:
   labels:
     app: ingest-worker1
 spec:
-  type: LoadBalancer
   ports:
   - port: 80
     targetPort: 8080
@@ -160,7 +158,6 @@ metadata:
   labels:
     app: query-worker1
 spec:
-  type: LoadBalancer
   ports:
   - port: 80
     targetPort: 8080
@@ -201,3 +198,12 @@ spec:
           value: "htapmaster"
         - name: MASTER_PORT
           value: "8080"
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: htapui-ingress
+spec:
+  backend:
+    serviceName: htapui
+    servicePort: 10000

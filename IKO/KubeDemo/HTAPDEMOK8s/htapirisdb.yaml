@@ -40,6 +40,15 @@ spec:
   serviceTemplate:
     spec:
       type: LoadBalancer
+# ---
+# apiVersion: networking.k8s.io/v1beta1
+# kind: Ingress
+# metadata:
+#   name: htapui-ingress
+# spec:
+#   backend:
+#     serviceName: htapui
+#     servicePort: 10000
 
 
 
