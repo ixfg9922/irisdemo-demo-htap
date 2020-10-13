@@ -106,42 +106,36 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ingest-worker1
+  name: ingest-worker
   labels:
-    app: ingest-worker1
+    app: ingest-worker
 spec:
+  clusterIP: None
   ports:
-  - port: 80
-    targetPort: 8080
-    protocol: TCP
-    name: http1
   - port: 8080
     targetPort: 8080
     protocol: TCP
     name: http2
-  - port: 10003
-    targetPort: 8080
-    protocol: TCP
-    name: sprgbt
   selector:
-    app: ingest-worker1
+    app: ingest-worker
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ingest-worker1
+  name: ingest-worker
 spec:
   selector:
     matchLabels:
-      app: ingest-worker1
+      app: ingest-worker
   replicas: 1
   template:
     metadata:
       labels:
-        app: ingest-worker1
+        app: ingest-worker
     spec:
+      hostname: ingest-worker
       containers:
-      - name: ingest-worker1
+      - name: ingest-worker
         image: intersystemsdc/irisdemo-demo-htap:iris-xep-ingest-worker-version-2.5.0
         ports:
         - containerPort: 8080
@@ -154,42 +148,36 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: query-worker1
+  name: query-worker
   labels:
-    app: query-worker1
+    app: query-worker
 spec:
+  clusterIP: None
   ports:
-  - port: 80
-    targetPort: 8080
-    protocol: TCP
-    name: http1
   - port: 8080
     targetPort: 8080
     protocol: TCP
     name: http2
-  - port: 10004
-    targetPort: 8080
-    protocol: TCP
-    name: sprgbt
   selector:
-    app: query-worker1
+    app: query-worker
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: query-worker1
+  name: query-worker
 spec:
   selector:
     matchLabels:
-      app: query-worker1
+      app: query-worker
   replicas: 1
   template:
     metadata:
       labels:
-        app: query-worker1
+        app: query-worker
     spec:
+      hostname: query-worker
       containers:
-      - name: query-worker1
+      - name: query-worker
         image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-query-worker-version-2.5.0
         ports:
         - containerPort: 8080
