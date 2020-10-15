@@ -145,11 +145,6 @@ spec:
         app: ingest-worker
     spec:
       hostname: ingest-worker-svc
-      tolerations:
-      - key: "htap-group"
-        operator: "Exists"
-        value: "true"
-        effect: "NoSchedule"  
       containers:
       - name: ingest-worker
         image: intersystemsdc/irisdemo-demo-htap:iris-xep-ingest-worker-version-2.5.1
@@ -192,11 +187,6 @@ spec:
         app: query-worker
     spec:
       hostname: query-worker-svc
-      tolerations:
-      - key: "htap-group"
-        operator: "Exists"
-        value: "true"
-        effect: "NoSchedule"  
       containers:
       - name: query-worker
         image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-query-worker-version-2.5.1
