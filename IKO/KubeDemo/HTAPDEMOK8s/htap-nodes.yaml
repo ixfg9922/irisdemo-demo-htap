@@ -5,6 +5,7 @@ metadata:
   labels:
     app: htapui
 spec:
+  type: LoadBalancer
   ports:
   - port: 10000
     targetPort: 4200
@@ -31,7 +32,7 @@ spec:
     spec:
       containers:
       - name: htapui
-        image: intersystemsdc/irisdemo-demo-htap:ui-version-2.5.0
+        image: intersystemsdc/irisdemo-demo-htap:ui-version-2.5.1
         ports:
         - containerPort: 4200
 ---
@@ -70,7 +71,7 @@ spec:
     spec:
       containers:
       - name: htapmaster
-        image: intersystemsdc/irisdemo-demo-htap:master-version-2.5.0
+        image: intersystemsdc/irisdemo-demo-htap:master-version-2.5.1
         ports:
         - containerPort: 8080
         env:
@@ -106,7 +107,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ingest-worker
+  name: ingest-worker-svc
   labels:
     app: ingest-worker
 spec:
@@ -133,10 +134,10 @@ spec:
       labels:
         app: ingest-worker
     spec:
-      hostname: ingest-worker
+      hostname: ingest-worker-svc
       containers:
       - name: ingest-worker
-        image: intersystemsdc/irisdemo-demo-htap:iris-xep-ingest-worker-version-2.5.0
+        image: intersystemsdc/irisdemo-demo-htap:iris-xep-ingest-worker-version-2.5.1
         ports:
         - containerPort: 8080
         env:
@@ -148,7 +149,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: query-worker
+  name: query-worker-svc
   labels:
     app: query-worker
 spec:
@@ -175,10 +176,10 @@ spec:
       labels:
         app: query-worker
     spec:
-      hostname: query-worker
+      hostname: query-worker-svc
       containers:
       - name: query-worker
-        image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-query-worker-version-2.5.0
+        image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-query-worker-version-2.5.1
         ports:
         - containerPort: 8080
         env:
