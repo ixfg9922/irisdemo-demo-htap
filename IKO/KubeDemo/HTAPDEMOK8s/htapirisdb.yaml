@@ -24,10 +24,20 @@ spec:
 #      image: intersystemsdc/irisdemo-base-irisdb-community:version-1.4
 #      image: intersystemsicm/iris:latest
       image: mc7913/irisdemo:irisdemo.iko_test01
+#      image: intersystemsicm/iris:2020.3.0AA.331.0
       podTemplate:
         spec:
           imagePullSecrets:
             - name: dockerhub-secret
+          selector:
+            matchLabels:
+#              role: iris
+              app: htapirisdb
+          tolerations:
+          - key: "iris-group"
+            operator: "Exists"
+            value: "true"
+            effect: "NoSchedule"
       updateStrategy:
         type: RollingUpdate
       storage:

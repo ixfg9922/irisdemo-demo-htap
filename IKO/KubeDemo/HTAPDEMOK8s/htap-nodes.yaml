@@ -5,6 +5,7 @@ metadata:
   labels:
     app: htapui
 spec:
+  type: LoadBalancer
   ports:
   - port: 10000
     targetPort: 4200
@@ -22,16 +23,21 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: htapui
+      role: htap
   replicas: 1
   template:
     metadata:
       labels:
         app: htapui
     spec:
+      tolerations:
+      - key: "htap-group"
+        operator: "Exists"
+        value: "true"
+        effect: "NoSchedule"
       containers:
       - name: htapui
-        image: intersystemsdc/irisdemo-demo-htap:ui-version-2.5.0
+        image: intersystemsdc/irisdemo-demo-htap:ui-version-2.5.1
         ports:
         - containerPort: 4200
 ---
@@ -61,16 +67,21 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: htapmaster
+      role: htap
   replicas: 1
   template:
     metadata:
       labels:
         app: htapmaster
     spec:
+      tolerations:
+      - key: "htap-group"
+        operator: "Exists"
+        value: "true"
+        effect: "NoSchedule"  
       containers:
       - name: htapmaster
-        image: intersystemsdc/irisdemo-demo-htap:master-version-2.5.0
+        image: intersystemsdc/irisdemo-demo-htap:master-version-2.5.1
         ports:
         - containerPort: 8080
         env:
@@ -106,7 +117,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ingest-worker
+  name: ingest-worker-svc
   labels:
     app: ingest-worker
 spec:
@@ -126,17 +137,22 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: ingest-worker
+      role: htap
   replicas: 1
   template:
     metadata:
       labels:
         app: ingest-worker
     spec:
-      hostname: ingest-worker
+      hostname: ingest-worker-svc
+      tolerations:
+      - key: "htap-group"
+        operator: "Exists"
+        value: "true"
+        effect: "NoSchedule"  
       containers:
       - name: ingest-worker
-        image: intersystemsdc/irisdemo-demo-htap:iris-xep-ingest-worker-version-2.5.0
+        image: intersystemsdc/irisdemo-demo-htap:iris-xep-ingest-worker-version-2.5.1
         ports:
         - containerPort: 8080
         env:
@@ -148,7 +164,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: query-worker
+  name: query-worker-svc
   labels:
     app: query-worker
 spec:
@@ -168,17 +184,22 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: query-worker
+      role: htap
   replicas: 1
   template:
     metadata:
       labels:
         app: query-worker
     spec:
-      hostname: query-worker
+      hostname: query-worker-svc
+      tolerations:
+      - key: "htap-group"
+        operator: "Exists"
+        value: "true"
+        effect: "NoSchedule"  
       containers:
       - name: query-worker
-        image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-query-worker-version-2.5.0
+        image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-query-worker-version-2.5.1
         ports:
         - containerPort: 8080
         env:
