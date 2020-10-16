@@ -3,12 +3,18 @@ kind: Service
 metadata:
   name: iris
 spec:
+  type: LoadBalancer
   selector:
     app: iris-pod
   ports:
     - protocol: TCP
       port: 1972
       targetPort: 1972
+      name: superserver
+    - protocol: TCP
+      port: 52773
+      targetPort: 52773
+      name: webserver
 
 ---
 apiVersion: apps/v1
@@ -29,10 +35,11 @@ spec:
     spec:
       containers:
       - name: iris-container
-        image: intersystemsdc/irisdemo-base-irisdb-community:version-1.6.0
+        image: intersystemsdc/irisdemo-base-irisdb-community:version-1.7.1
         resources:
           requests:
               cpu: 0.5
               memory: 512M
         ports:
         - containerPort: 1972
+        - containerPort: 52773

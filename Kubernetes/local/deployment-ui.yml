@@ -3,13 +3,14 @@ kind: Service
 metadata:
   name: ui
 spec:
-  type: NodePort
+#  type: NodePort
+  type: LoadBalancer
   selector:
     app: ui-pod
   ports:
     - protocol: TCP
-      port: 4200
-      nodePort: 30000
+      port: 80
+      targetPort: 4200
 
 ---
 apiVersion: apps/v1
@@ -30,7 +31,7 @@ spec:
     spec:
       containers:
       - name: ui-container
-        image: intersystemsdc/irisdemo-demo-htap:ui-version-2.5.1
+        image: intersystemsdc/irisdemo-demo-htap:ui-version-2.5.2
         resources:
           requests:
               cpu: 0.5
