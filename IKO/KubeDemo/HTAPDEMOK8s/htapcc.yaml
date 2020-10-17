@@ -1,19 +1,19 @@
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
-  name: Conifer
-  region: us-west-2
+  name: Conifer8
+  region: us-east-1
 nodeGroups:
 - name: iris-group
-  labels: { role: iris }
+  labels: { node-label: iris }
   instanceType: r5.2xlarge
   minSize: 1
   maxSize: 1
   desiredCapacity: 1
-#  taints: 
-#    iris-group: "true:NoSchedule"
+  taints: 
+    iris-group: "true:NoSchedule"
 - name: htap-group
-  labels: { role: htap }
+  labels: { node-label: htap }
   instanceType: m5.xlarge
   minSize: 2
   maxSize: 2

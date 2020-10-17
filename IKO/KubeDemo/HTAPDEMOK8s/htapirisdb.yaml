@@ -29,13 +29,13 @@ spec:
         spec:
           imagePullSecrets:
             - name: dockerhub-secret
-          selector:
-            matchLabels:
-#              role: iris
-              app: htapirisdb
+#          selector:
+#            matchLabels:
+##              role: iris
+#              app: htapirisdb
           tolerations:
           - key: "iris-group"
-            operator: "Exists"
+            operator: "Equal"
             value: "true"
             effect: "NoSchedule"
       updateStrategy:

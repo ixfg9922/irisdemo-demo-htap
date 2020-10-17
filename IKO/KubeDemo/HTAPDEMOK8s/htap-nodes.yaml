@@ -1,43 +1,40 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: htapui
-  labels:
-    app: htapui
+  name: ui
 spec:
+#  type: NodePort
   type: LoadBalancer
-  ports:
-  - port: 10000
-    targetPort: 4200
-    protocol: TCP
-    name: http
   selector:
-    app: htapui
+    app: ui-pod
+  ports:
+    - protocol: TCP
+      port: 10000
+      targetPort: 4200
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: htapui
+  name: ui-deployment
   labels:
-    app: htapui
+    app: ui-deployment
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      role: htap
-  replicas: 1
+      app: ui-pod
   template:
     metadata:
       labels:
-        app: htapui
+        app: ui-pod
     spec:
-      tolerations:
-      - key: "htap-group"
-        operator: "Exists"
-        value: "true"
-        effect: "NoSchedule"
       containers:
-      - name: htapui
-        image: intersystemsdc/irisdemo-demo-htap:ui-version-2.5.1
+      - name: ui-container
+        image: intersystemsdc/irisdemo-demo-htap:ui-version-2.5.2
+        resources:
+          requests:
+              cpu: 0.5
+              memory: 512M
         ports:
         - containerPort: 4200
 ---
@@ -45,53 +42,47 @@ apiVersion: v1
 kind: Service
 metadata:
   name: htapmaster
-  labels:
-    app: htapmaster
 spec:
-  ports:
-    - port: 80
-      targetPort: 8080
-      protocol: TCP
-      name: http1
-    - port: 8080
-      targetPort: 8080
-      protocol: TCP
-      name: http2
   selector:
-    app: htapmaster
+    app: master-pod
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: htapmaster
+  name: master-deployment
+  labels:
+    app: master-deployment
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      role: htap
-  replicas: 1
+      app: master-pod
   template:
     metadata:
       labels:
-        app: htapmaster
+        app: master-pod
     spec:
-      tolerations:
-      - key: "htap-group"
-        operator: "Exists"
-        value: "true"
-        effect: "NoSchedule"  
       containers:
-      - name: htapmaster
-        image: intersystemsdc/irisdemo-demo-htap:master-version-2.5.1
+      - name: master-container
+        image: intersystemsdc/irisdemo-demo-htap:master-version-2.5.2
+        resources:
+          requests:
+              cpu: 0.5
+              memory: 512M
         ports:
         - containerPort: 8080
         env:
         - name: MASTER_SPEEDTEST_TITLE
-          value: "SpeedTest | IRIS 2019.4 (XEP)"
+          value: "SpeedTest | IRIS Community 2020.3.0.200.0"
         - name: START_CONSUMERS
           value: "true"
         - name: DISABLE_JOURNAL_FOR_DROP_TABLE
           value: "true"
-        - name: DISABLE_JOURNAL_FOR_TappCATE
+        - name: DISABLE_JOURNAL_FOR_TRUNCATE_TABLE
           value: "true"
         - name: INGESTION_THREADS_PER_WORKER
           value: "2"
@@ -113,41 +104,32 @@ spec:
           value: "1"
         - name: CONSUMER_TIME_BETWEEN_QUERIES_IN_MILLIS
           value: "0"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ingest-worker-svc
-  labels:
-    app: ingest-worker
-spec:
-  clusterIP: None
-  ports:
-  - port: 8080
-    targetPort: 8080
-    protocol: TCP
-    name: http2
-  selector:
-    app: ingest-worker
+        - name: DATABASE_SIZE_IN_GB
+          value: "1"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ingest-worker
+  name: ingestion-worker-deployment
+  labels:
+    app: ingestion-worker-deployment
 spec:
+  replicas: 2
   selector:
     matchLabels:
-      role: htap
-  replicas: 1
+      app: ingestion-worker-pod
   template:
     metadata:
       labels:
-        app: ingest-worker
+        app: ingestion-worker-pod
     spec:
-      hostname: ingest-worker-svc
       containers:
-      - name: ingest-worker
-        image: intersystemsdc/irisdemo-demo-htap:iris-xep-ingest-worker-version-2.5.1
+      - name: ingestion-worker-container
+        image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-ingest-worker-version-2.5.2
+        resources:
+          requests:
+              cpu: 0.5
+              memory: 512M
         ports:
         - containerPort: 8080
         env:
@@ -156,47 +138,37 @@ spec:
         - name: MASTER_PORT
           value: "8080"
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: query-worker-svc
-  labels:
-    app: query-worker
-spec:
-  clusterIP: None
-  ports:
-  - port: 8080
-    targetPort: 8080
-    protocol: TCP
-    name: http2
-  selector:
-    app: query-worker
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: query-worker
+  name: query-worker-deployment
+  labels:
+    app: query-worker-deployment
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      role: htap
-  replicas: 1
+      app: query-worker-pod
   template:
     metadata:
       labels:
-        app: query-worker
+        app: query-worker-pod
     spec:
-      hostname: query-worker-svc
       containers:
-      - name: query-worker
-        image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-query-worker-version-2.5.1
+      - name: query-worker-container
+        image: intersystemsdc/irisdemo-demo-htap:iris-jdbc-query-worker-version-2.5.2
+        resources:
+          requests:
+              cpu: 0.5
+              memory: 512M
+
         ports:
         - containerPort: 8080
         env:
         - name: MASTER_HOSTNAME
           value: "htapmaster"
         - name: MASTER_PORT
-          value: "8080"
+          value: "8080"  
 ---
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
@@ -204,5 +176,5 @@ metadata:
   name: htapui-ingress
 spec:
   backend:
-    serviceName: htapui
+    serviceName: ui
     servicePort: 10000
