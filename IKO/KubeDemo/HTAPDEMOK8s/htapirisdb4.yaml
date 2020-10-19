@@ -30,6 +30,8 @@ spec:
           labels:
             iris-aa: iris-instance
         spec:
+          metadata: 
+            iris-aa: iris-instance
           imagePullSecrets:
             - name: dockerhub-secret
 #          selector:
@@ -46,12 +48,13 @@ spec:
               preferredDuringSchedulingIgnoredDuringExecution:
               - weight: 100
                 podAffinityTerm:
+                  topologyKey: "kubernetes.io/hostname"
                   labelSelector:
                     matchExpressions:
                     - key: "iris-aa"
-                      operator: "Equals"
-                      value: "iris-instance"                      
-                  topologyKey: "kubernetes.io/hostname"
+                      operator: "In"
+                      values:
+                      - "iris-instance"                      
 #              - labelSelector:
 #                matchExpressions:
 #                - key: "iris-aa"
@@ -65,6 +68,7 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
+#            cpu: 1.0
             storage: 100G
         storageClassName: aws-storage-class
   serviceTemplate:
