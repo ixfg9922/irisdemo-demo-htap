@@ -26,9 +26,9 @@ spec:
       image: mc7913/irisdemo:irisdemo.iko_test01
 #      image: intersystemsicm/iris:2020.3.0AA.331.0
       podTemplate:
-#        metadata:
-#          labels:
-#            app: iris-instance
+        metadata:
+          labels:
+            iris-aa: iris-instance
         spec:
           imagePullSecrets:
             - name: dockerhub-secret
@@ -41,15 +41,22 @@ spec:
             operator: "Equal"
             value: "true"
             effect: "NoSchedule"
-#          affinity:
-#            podAntiAffinity:
-#              preferredDuringSchedulingIgnoredDuringExecution:
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "iris-aa"
+                      operator: "Equals"
+                      value: "iris-instance"                      
+                  topologyKey: "kubernetes.io/hostname"
 #              - labelSelector:
 #                matchExpressions:
-#                  - key: app
-#                    operator: In
-#                    values:
-#                      - iris-instance
+#                - key: "iris-aa"
+#                  operator: "Equal"
+#                  value: "iris-instance"
 #                topologyKey: "kubernetes.io/hostname"
       updateStrategy:
         type: RollingUpdate
