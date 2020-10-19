@@ -1,0 +1,77 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: aws-storage-class
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: io1
+  iopsPerGB: "10"
+  fsType: ext4
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: intersystems.com/v1alpha1
+kind: IrisCluster
+metadata:
+  name: htapirisdb
+spec:
+  passwordHash: '071e3aa0c8810f91eefd8f074e3768b06c66308a,v7mf8dt5'
+  licenseKeySecret:
+    name: iris-key-secret
+  topology:
+    data:
+      shards: 2
+      mirrored: true
+#      image: intersystemsdc/irisdemo-base-irisdb-community:version-1.4
+#      image: intersystemsicm/iris:latest
+      image: mc7913/irisdemo:irisdemo.iko_test01
+#      image: intersystemsicm/iris:2020.3.0AA.331.0
+      podTemplate:
+#        metadata:
+#          labels:
+#            app: iris-instance
+        spec:
+          imagePullSecrets:
+            - name: dockerhub-secret
+#          selector:
+#            matchLabels:
+##              role: iris
+#              app: htapirisdb
+          tolerations:
+          - key: "iris-group"
+            operator: "Equal"
+            value: "true"
+            effect: "NoSchedule"
+#          affinity:
+#            podAntiAffinity:
+#              preferredDuringSchedulingIgnoredDuringExecution:
+#              - labelSelector:
+#                matchExpressions:
+#                  - key: app
+#                    operator: In
+#                    values:
+#                      - iris-instance
+#                topologyKey: "kubernetes.io/hostname"
+      updateStrategy:
+        type: RollingUpdate
+      storage:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100G
+        storageClassName: aws-storage-class
+  serviceTemplate:
+    spec:
+      type: LoadBalancer
+# ---
+# apiVersion: networking.k8s.io/v1beta1
+# kind: Ingress
+# metadata:
+#   name: htapui-ingress
+# spec:
+#   backend:
+#     serviceName: htapui
+#     servicePort: 10000
+
+
+
