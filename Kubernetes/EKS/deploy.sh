@@ -1,19 +1,28 @@
 #!/bin/bash
 
-source ./utils.sh
+source ../common/utils.sh
 
-kubectl apply -f ./deployment-ui.yml
-exit_if_error "Could not apply deployment-ui.yml"
+#eksctl create cluster -f ./nodes-r5-2xlarge.yaml
+#exit_if_error "Could note create cluster using nodes-r5-2xlarge.yaml"
 
-kubectl apply -f ./deployment-master.yml
-exit_if_error "Could not apply deployment-master.yml"
+kubectl apply -f ./storage-class-iris-r5-2xlarge.yaml
+exit_if_error "Could not apply storage-class-iris-r5-2xlarge.yaml"
 
 kubectl apply -f ./deployment-iris.yml
 exit_if_error "Could not apply deployment-iris.yml"
 
-kubectl apply -f ./deployment-workers.yml
+kubectl apply -f ../common/deployment-ui.yml
+exit_if_error "Could not apply deployment-ui.yml"
+
+kubectl apply -f ../common/deployment-master.yml
+exit_if_error "Could not apply deployment-master.yml"
+
+kubectl apply -f ../common/deployment-workers.yml
 exit_if_error "Could not apply deployment-workers.yml"
 
-printf "\n\nWait for a minute or so then open http://localhost:3000\n\n"
+kubectl apply -f ./service-ui.yml
+exit_if_error "Could not apply deployment-iris.yml"
+
+printf "\n\nWait for a minute or so then open http://localhost\n\n"
 
 printf "\n\nWhen you are done, run the ./delete.sh script.\n\n"
